@@ -27,6 +27,7 @@
     "jsx-a11y/label-has-associated-control": "off",
     "react/jsx-filename-extension": "off",
     "react/forbid-prop-types": "off",
-    "object-curly-newline": "off"
+    "object-curly-newline": "off",
+    "no-param-reassign": "off"
   }
 }

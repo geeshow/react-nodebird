@@ -1,7 +1,11 @@
-{
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+module.exports = {
   "development": {
     "username": "root",
-    "password": "test1234!@",
+    "password": process.env.DB_PASSWORD,
     "database": "react-nodebird",
     "host": "127.0.0.1",
     "post": "3306",
@@ -9,7 +13,7 @@
   },
   "test": {
     "username": "root",
-    "password": null,
+    "password": process.env.DB_PASSWORD,
     "database": "spreader",
     "host": "127.0.0.1",
     "dialect": "mysql"

@@ -1,4 +1,4 @@
-import { all, fork, delay, put, takeLatest } from 'redux-saga/effects';
+import { all, fork, delay, put, takeLatest, call } from 'redux-saga/effects';
 import axios from 'axios';
 import {
   LOG_IN_FAILURE,
@@ -9,9 +9,36 @@ import {
   SIGN_UP_SUCCESS,
   LOG_OUT_FAILURE,
   LOG_OUT_REQUEST,
-  LOG_OUT_SUCCESS, UNFOLLOW_REQUEST, FOLLOW_REQUEST, UNFOLLOW_SUCCESS, UNFOLLOW_FAILURE, FOLLOW_SUCCESS, FOLLOW_FAILURE,
+  LOG_OUT_SUCCESS,
+  UNFOLLOW_REQUEST,
+  FOLLOW_REQUEST,
+  UNFOLLOW_SUCCESS,
+  UNFOLLOW_FAILURE,
+  FOLLOW_SUCCESS,
+  FOLLOW_FAILURE,
+  LOAD_USER_SUCCESS, LOAD_USER_FAILURE, LOAD_USER_REQUEST,
 } from '../reducers/user';
 
+function loadUserAPI() {
+  return axios.get('/user', {
+    withCredentials: true,
+  });
+}
+
+function* loadUser() {
+  try {
+    const result = yield call(loadUserAPI);
+    yield put({
+      type: LOAD_USER_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    yield put({
+      type: LOAD_USER_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
 function followAPI(data) {
   return axios.post('/api/follow', data);
 }
@@ -51,17 +78,15 @@ function* unfollow(action) {
   }
 }
 function logInAPI(data) {
-  return axios.post('/api/login', data);
+  return axios.post('/user/login', data);
 }
 
 function* login(action) {
   try {
-    console.log('saga login');
-    // const result = yield call(logInAPI, action.data);
-    yield delay(1000);
+    const result = yield call(logInAPI, action.data);
     yield put({
       type: LOG_IN_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (err) {
     yield put({
@@ -71,14 +96,14 @@ function* login(action) {
   }
 }
 
-function signUpAPI() {
-  return axios.post('/api/signUp');
+function signUpAPI(data) {
+  return axios.post('/user', data);
 }
 
-function* signUp() {
+function* signUp(action) {
   try {
-    // const result = yield call(logOutAPI);
-    yield delay(1000);
+    const result = yield call(signUpAPI, action.data);
+    console.log(result);
     yield put({
       type: SIGN_UP_SUCCESS,
     });
@@ -90,13 +115,12 @@ function* signUp() {
   }
 }
 function logOutAPI() {
-  return axios.post('/api/logOut');
+  return axios.post('/user/logout');
 }
 
 function* logOut() {
   try {
-    // const result = yield call(logOutAPI);
-    yield delay(1000);
+    yield call(logOutAPI);
     yield put({
       type: LOG_OUT_SUCCESS,
     });
@@ -106,6 +130,10 @@ function* logOut() {
       error: err.response.data,
     });
   }
+}
+
+function* watchLoadUser() {
+  yield takeLatest(LOAD_USER_REQUEST, loadUser);
 }
 
 function* watchFollow() {
@@ -130,6 +158,7 @@ function* watchLogOut() {
 
 export default function* userSaga() {
   yield all([
+    fork(watchLoadUser),
     fork(watchFollow),
     fork(watchUnfollow),
     fork(watchLogIn),

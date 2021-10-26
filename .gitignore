@@ -1,3 +1,4 @@
 /prepare/front/.next/
 /prepare/front/node_modules/
 /prepare/back/node_modules/
+/prepare/lambda/node_modules/

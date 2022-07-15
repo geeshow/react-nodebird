@@ -22,7 +22,7 @@ exports.handler = async (event, context, callback) => {
     await s3.putObject({
       Bucket,
       Key: `thump/${filename}`
-    });
+    }).promise();
     console.log('put', resizedImage.length);
     return callback(null, `thumb/${filename}`);
   } catch(error) {
